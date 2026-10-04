@@ -14,9 +14,9 @@
 #
 # Check a published file:
 #   gh release verify OWNER/REPO v1.2.3
-#   gh attestation verify ./README.md -R OWNER/REPO
-#   gh attestation verify ./README.md -R OWNER/REPO --bundle ./release.sigstore.jsonl
-#   gh attestation verify ./README.md -R OWNER/REPO --bundle ./release.sigstore.jsonl --predicate-type urn:version
+#   gh attestation verify ./rust-template -R OWNER/REPO
+#   gh attestation verify ./rust-template -R OWNER/REPO --bundle ./release.sigstore.jsonl
+#   gh attestation verify ./rust-template -R OWNER/REPO --bundle ./release.sigstore.jsonl --predicate-type urn:version
 
 name: Release
 

@@ -5,3 +5,12 @@
 .env
 .env.*
 !.env.example
+
+# Rust builds and release artifacts
+/target/
+/dist/
+
+
+# Added by cargo
+
+/target
