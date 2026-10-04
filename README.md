@@ -26,7 +26,11 @@ Hi there
 ## Project scope
 
 > [!IMPORTANT]
-> Briefly introduce your community, who they are and why they care. Then describe your project's scope and what is out-of-scope so people know which contributions are welcome.
+> In the first paragraph, briefly introduce your community, who they are and why they care.
+>
+> After that, add your project's scope. This tells people what kinds of things you care about. This inspires people to become *contributors* here when they are doing their own work and see that their work is also welcome here.
+>
+> Last, it is good to also say what is out-of-scope. These exclusions serve the same purpose and demonstrate that you are thoughtful about your scoping.
 
 We maintain this starting point for people creating Rust projects. It provides a small command-line application with working development and release workflows, without choosing an application framework or adding external Rust dependencies.
 
