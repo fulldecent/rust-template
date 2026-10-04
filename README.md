@@ -1,71 +1,106 @@
-# Project template
+# Rust project template
 
-[![Lint](https://github.com/fulldecent/project-template/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/fulldecent/project-template/actions/workflows/lint.yml)
+[![Build and test](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml/badge.svg?branch=main)](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml)
+[![Lint](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml)
 
-> [!IMPORTANT]
-> Replace this top heading with your own project name and status badge, and replace the rest of this section with what the project does, and show it (e.g. with screenshots).
->
-> This template does not include "try it out", "installation", "usage" or "development/contributing" sections because each project should decide which, if any, of these apply. We include a GitHub Action workflow for continuous integration of file formatting but do not provide instructions for running that ad-hoc. Your own project may wish to add such instructions to your development/contributing section if your audience is comfortable using the command line and installing packages.
+Start a Rust command-line project with a working program, tests, and continuous integration. The included program prints:
 
-This is an opinionated template for every project, unless a more specific template applies, that provides:
+```text
+Hi there
+```
 
-- An explicit license (MIT, at [LICENSE](LICENSE))
-- [EditorConfig](.editorconfig) with modern defaults
-- A [.gitignore](.gitignore) with modern defaults
-- Continuous integration to [check formatting](.github/workflows/lint.yml)
-- Markdown checks with markdownlint, other file checks with Prettier
-- A starting point for SLSA provenance attestation (if you produce build artifacts)
-- Automated releases using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), [SemVer](https://semver.org/) and [Release Please](.github/workflows/release-please.yml)
+This builds on [project-template](https://github.com/fulldecent/project-template), retaining its MIT license, EditorConfig, Markdown/Prettier checks, automated releases, and build attestations. Rust builds, tests, formatting, and Clippy checks use Cargo. The program has no external Rust dependencies.
 
-## More specific templates
+## Development
 
-Use a more specific template if it applies. These all provide additional features:
+Open a terminal (PowerShell on Windows). Install Rust, Git, and the native build tools using your package manager:
 
-- [Node.js template](https://github.com/fulldecent/node.js-template): Node.js module (e.g. on NPM) or application
-- [GitHub Pages template](https://github.com/fulldecent/github-pages-template): collaboratively edited HTML websites
-- [Swift 6 module template](https://github.com/fulldecent/swift6-module-template): reusable Swift 6 module (e.g. with Swift Package Manager)
-- [Solidity template](https://github.com/fulldecent/solidity-template): Solidity contracts (technology preview)
-- [Moodle plugin template](https://github.com/fulldecent/moodle-local_plugin_template): Moodle plugin (work in progress)
-- [Podcast template](https://github.com/fulldecent/podcast-template): podcast on your own domain
+### Linux
 
-## Project scope
+Ubuntu 22.04+ or Debian 12+:
 
-> [!IMPORTANT]
-> In the first paragraph, briefly introduce your community, who they are and why they care.
->
-> After that, add your project's scope. This tells people what kinds of things you care about. This inspires people to become *contributors* here when they are doing their own work and see that their work is also welcome here.
->
-> Last, it is good to also say what is out-of-scope. These exclusions serve the same purpose and demonstrate that you are thoughtful about your scoping.
+```sh
+sudo apt update
+sudo apt install git build-essential rustc cargo rustfmt rust-clippy
+```
 
-We the people who manage projects, in order to surface up records of past decisions and make projects inviting for a growing audience, maintain this starting point for all projects.
+Fedora:
 
-This project-template must remain broad—addressing the needs of many kinds of projects. This includes projects related to compiling code as well as others. Every project deserves a README, and a clear rule on basic formatting questions, this is why we include continuous integration linting.
+```sh
+sudo dnf install git gcc rust cargo rustfmt clippy
+```
 
-This project-template does not address items which only apply to projects involving compiling source code. We do not specify that GitHub and GitHub Actions are the only way to host projects, others may consider our GitHub-specific notes as a starting point guide for implementing outside of GitHub.
+### macOS (Homebrew)
+
+```sh
+xcode-select --install
+```
+
+Complete Apple's Command Line Tools installation dialog; it supplies the linker and SDK. Skip this step if those tools are already installed. Then install Rust:
+
+```sh
+brew install git rust
+```
+
+Homebrew's Rust package includes Cargo, rustfmt, and Clippy.
+
+### Windows (winget)
+
+```powershell
+winget install --exact --id Git.Git
+winget install --exact --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+winget install --exact --id Rustlang.Rustup
+```
+
+Allow any administrator prompts and wait for installation to finish. The C++ workload supplies the MSVC linker and Windows SDK required by Rust. Open a new PowerShell window so the updated PATH takes effect, then run:
+
+```powershell
+rustup default stable
+rustup component add rustfmt clippy
+```
+
+### Get the project and run it
+
+Select **Use this template** on GitHub to create your own repository. Clone it using its URL, or try this template directly:
+
+```sh
+git clone https://github.com/fulldecent/rust-template.git
+cd rust-template
+rustc --version
+cargo --version
+cargo run --locked
+```
+
+Rust 1.63 or newer is required. Edit `src/main.rs` in any text editor, then run these commands from the project directory:
+
+```sh
+cargo test --locked
+cargo fmt --all -- --check
+cargo clippy --all-targets --locked -- -D warnings
+cargo build --release --locked
+```
+
+Use `cargo fmt --all` to apply formatting. `tests/cli.rs` checks the program's exit status, standard output, and standard error. Cargo puts build outputs in the ignored `target/` directory.
+
+Run the optimized binary with `./target/release/rust-template` on Linux/macOS or `.\target\release\rust-template.exe` in PowerShell. Commit `Cargo.lock` to keep application builds reproducible.
+
+## Make it your own
+
+- Rename the package in `Cargo.toml`, the binary name in `tests/cli.rs`, and the binary path in `.github/workflows/build-test.yml`; run `cargo generate-lockfile` afterward.
+- Replace the greeting and its test with your application's behavior.
+- Update this README, its badge URLs, and the copyright in [LICENSE](LICENSE). Choose a license appropriate for your project.
 
 ## Contributing and releases
 
-> [!IMPORTANT]
-> In your GitHub repository settings, under Actions, General, Workflow permissions, check "Allow GitHub Actions to create and approve pull requests". Release Please needs this to open the release pull request.
+[Build and test](.github/workflows/build-test.yml) builds and tests a release-mode Linux binary, then attests and uploads it as the `build` artifact. [Lint](.github/workflows/lint.yml) checks Rust formatting, Clippy, Markdown, and other file formatting.
 
-Commits in this project using `fix:`, `feat:` or `BREAKING CHANGE:` will draft a new release pull request. Merging that pull request triggers a new tag and GitHub Release.
+The inherited [release workflow](.github/workflows/release.yml) uses Conventional Commits (`fix:`, `feat:`, or `BREAKING CHANGE:`) to draft release pull requests. Merging a release pull request publishes the Linux binary and attestation sidecar. Release Please uses the `simple` release type; update the package version in `Cargo.toml` and regenerate `Cargo.lock` when preparing a release.
 
-## Maintenance and dependency updates
+In GitHub repository settings, enable **Allow GitHub Actions to create and approve pull requests** under **Actions → General → Workflow permissions**, and enable release immutability under **General → Releases**.
 
-Every quarter we should check these things. Please send a PR if you see updates available:
+## Maintenance and references
 
-1. Identify external Actions in [.github/workflows](./.github/workflows) scripts and look for available new versions. Review and then update to the new version if it is safe. GitHub-supported Actions (i.e. under the actions/ organization) may require only cursory review.
+Every quarter, review external Actions in `.github/workflows` for safe updates.
 
-## References
-
-> [!IMPORTANT]
-> We use an MIT license for this template. You should carefully consider which license to apply to your own project. Replace the copyright line in LICENSE.
->
-> If your project materially relied on external sources to make some decisions, cite them here.
->
-> We cite a text formatting policy below. This applies to our README above as well as our workflow rules and other configuration files. If you have a different policy, then please implement it throughout.
->
-> We cite the project-template release you copied.
-
-1. We use title case for titles and proper nouns; not for headings and other things.
-1. This project is built based on [best practices documented in project-template](https://github.com/fulldecent/project-template), release 1.1.1.
+1. Based on [project-template](https://github.com/fulldecent/project-template), including its build attestation and release workflows.
+1. We use title case for titles and proper nouns, not for other headings.
