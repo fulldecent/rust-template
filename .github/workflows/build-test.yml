@@ -2,8 +2,6 @@
 #
 # Build, SLSA attest, and test the project.
 #
-# TODO: Update the build and test steps below for your own project.
-#
 # This workflow produces the following things which release.yml consumes:
 #   1. $.jobs.build-test (this exact job ID)
 #   2. The artifact named "build"
@@ -32,16 +30,17 @@ jobs:
       - name: Check out this commit
         uses: actions/checkout@v7
 
+      - name: Set up Rust
+        run: rustup show
+
       - name: Build
         run: |
-          # Replace this with the real build. Keep the output in dist/.
+          cargo build --release --locked
           mkdir -p dist
-          cp README.md dist/
+          cp target/release/rust-template dist/
 
       - name: Test
-        run: |
-          # Replace this with the real test command.
-          test -s dist/README.md
+        run: cargo test --release --locked
 
       - name: Attest the build
         id: attest
