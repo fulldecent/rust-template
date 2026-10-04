@@ -1,0 +1,64 @@
+# Build and test
+#
+# Build, SLSA attest, and test the project.
+#
+# TODO: Update the build and test steps below for your own project.
+#
+# This workflow produces the following things which release.yml consumes:
+#   1. $.jobs.build-test (this exact job ID)
+#   2. The artifact named "build"
+#
+# Public repositories can use attest for free. Private repos require Enterprise Cloud.
+
+name: Build and test
+
+on:
+  workflow_call:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Check out this commit
+        uses: actions/checkout@v7
+
+      - name: Build
+        run: |
+          # Replace this with the real build. Keep the output in dist/.
+          mkdir -p dist
+          cp README.md dist/
+
+      - name: Test
+        run: |
+          # Replace this with the real test command.
+          test -s dist/README.md
+
+      - name: Attest the build
+        id: attest
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/*
+
+      # After attesting, so the bundle is not one of its own subjects.
+      - name: Add the attestation to the build
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: cp "$BUNDLE" dist/attestation.sigstore.json
+
+      - name: Upload the build
+        uses: actions/upload-artifact@v7
+        with:
+          name: build
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
