@@ -1,8 +1,9 @@
 # Changelog
 
-## [1.2.0](https://github.com/fulldecent/project-template/compare/v1.1.1...v1.2.0) (2026-10-03)
+## Unreleased
 
-
-### Features
-
-* add releases ([23b936c](https://github.com/fulldecent/project-template/commit/23b936c8dc4414fd72ea939c83d2d9fb328f7dea))
+- ASCII Filter command-line application with bounded memory use and no external Rust dependencies.
+- CLI tests for empty input, all byte values and large streams.
+- Shared Rust toolchain and CI checks for builds, tests, rustfmt and Clippy.
+- Package-manager installation and development instructions for Linux, macOS and Windows.
+- Automated release drafts and Linux binaries with build provenance and version attestations.

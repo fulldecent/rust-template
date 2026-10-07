@@ -37,7 +37,7 @@ jobs:
         run: |
           cargo build --release --locked
           mkdir -p dist
-          cp target/release/rust-template dist/
+          cp target/release/ascii-filter dist/
 
       - name: Test
         run: cargo test --release --locked

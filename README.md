@@ -1,76 +1,75 @@
-# Rust project template
+# ASCII Filter
 
-[![Build and test](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml/badge.svg?branch=main)](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml)
-[![Lint](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml)
+> [!TIP]
+> This template is a starting point you can use for every Rust project. We offer:
+>
+> - Clear structure and quick examples
+> - Cargo builds, tests, rustfmt and Clippy in continuous integration
+> - Automated releases with [Release Please](.github/workflows/release.yml) and SLSA provenance attestation
+> - A shared [Rust toolchain](rust-toolchain.toml) for local development and CI
+>
+> What is in-scope for this template?
+>
+> We the people who manage Rust projects, in order to advocate for a safer installation path and great defaults for Rust, maintain this starting point for all projects.
+>
+> This rust-template must remain broad—addressing the needs of many kinds of projects. Every project deserves a README, and a clear rule on basic formatting questions, this is why we include continuous integration linting.
+>
+> We do not specify that GitHub and GitHub Actions are the only way to host projects, others may consider our GitHub-specific notes as a starting point guide for implementing outside of GitHub.
+>
+> And now below is the template, shown for a specific hypothetical project, enjoy!
 
-> [!IMPORTANT]
-> Replace this top heading with your own project name and status badges, and replace the rest of this section with what your project does, and show it (e.g. with screenshots or command output).
+[![Build and test](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml/badge.svg?branch=main)](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml) [![Lint](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml)
 
-This is an opinionated template for Rust projects that provides:
+Keep the ASCII characters. Drop everything else.
 
-- A working Cargo application and CLI test
-- An explicit license (MIT, at [LICENSE](LICENSE))
-- [EditorConfig](.editorconfig) with modern defaults
-- A [.gitignore](.gitignore) incorporating GitHub's Rust ignore template
-- A [Rust toolchain file](rust-toolchain.toml) shared by local rustup and CI
-- Continuous integration for Cargo builds, tests, rustfmt, and Clippy
-- Markdown checks with markdownlint, other file checks with Prettier
-- Build provenance attestations and automated releases
+ASCII Filter reads standard input and writes only ASCII bytes to standard output. Its memory use stays bounded, no matter how large the input file is.
 
-This builds on [project-template](https://github.com/fulldecent/project-template). The included program has no external Rust dependencies and prints:
-
-```text
-Hi there
+```console
+$ printf 'caf\303\251\n' | ascii-filter
+caf
 ```
 
-## Project scope
+> [!NOTE]
+> Replace the project name, description, demonstration and badge URLs with your own. Show what your project does before asking people to read further.
 
-> [!IMPORTANT]
-> In the first paragraph, briefly introduce your community, who they are and why they care.
->
-> After that, add your project's scope. This tells people what kinds of things you care about. This inspires people to become *contributors* here when they are doing their own work and see that their work is also welcome here.
->
-> Last, it is good to also say what is out-of-scope. These exclusions serve the same purpose and demonstrate that you are thoughtful about your scoping.
+## Installation
 
-We maintain this starting point for people creating Rust projects. It provides a small command-line application with working development and release workflows, without choosing an application framework or adding external Rust dependencies.
-
-## Development
-
-> [!IMPORTANT]
-> Adapt these instructions for people developing your project. Keep the package-manager setup steps and replace the example commands and output as your application changes.
-
-Open a terminal (PowerShell on Windows). Install Rust, Git, and the native build tools using your package manager:
+You will need Rust 1.63 or newer, Cargo, Git and your platform's native build tools. Open a terminal (PowerShell on Windows) and use the instructions for your operating system.
 
 ### Linux
 
-Ubuntu 22.04+ or Debian 12+:
+On Ubuntu 22.04+ or Debian 12+:
 
 ```sh
 sudo apt update
 sudo apt install git build-essential rustc cargo rustfmt rust-clippy
 ```
 
-Fedora:
+On Fedora:
 
 ```sh
 sudo dnf install git gcc rust cargo rustfmt clippy
 ```
 
-### macOS (Homebrew)
+### macOS
+
+Install Apple's Command Line Tools if they are not already installed:
 
 ```sh
 xcode-select --install
 ```
 
-Complete Apple's Command Line Tools installation dialog; it supplies the linker and SDK. Skip this step if those tools are already installed. Then install Rust:
+Complete the installation dialog; these tools supply the linker and SDK. With Homebrew installed, install Git and Rust:
 
 ```sh
 brew install git rust
 ```
 
-Homebrew's Rust package includes Cargo, rustfmt, and Clippy.
+Homebrew's Rust package includes Cargo, rustfmt and Clippy.
 
-### Windows (winget)
+### Windows
+
+Use winget to install Git, the native build tools and rustup:
 
 ```powershell
 winget install --exact --id Git.Git
@@ -78,28 +77,76 @@ winget install --exact --id Microsoft.VisualStudio.2022.BuildTools --override "-
 winget install --exact --id Rustlang.Rustup
 ```
 
-Allow any administrator prompts and wait for installation to finish. The C++ workload supplies the MSVC linker and Windows SDK required by Rust. Open a new PowerShell window so the updated PATH takes effect, then run:
+Allow administrator prompts and wait for installation to finish. The C++ workload supplies the MSVC linker and Windows SDK. Open a new PowerShell window so the updated PATH takes effect, then run:
+
+> [!CAUTION]
+> The instructions above only install `rustc` but we need `rustup`!
+>
+> These instructions are incomplete to make use of rust-toolchain.toml.
 
 ```powershell
 rustup default stable
 rustup component add rustfmt clippy
 ```
 
-### Get the project and run it
+### Build and install
 
-Select **Use this template** on GitHub to create your own repository. Clone it using its URL, or try this template directly:
+Clone the project and install the command:
 
 ```sh
 git clone https://github.com/fulldecent/rust-template.git
 cd rust-template
 rustc --version
 cargo --version
-cargo run --locked
+cargo install --path . --locked
 ```
 
-Rust 1.63 or newer is required. When using rustup, [rust-toolchain.toml](rust-toolchain.toml) selects the toolchain and installs rustfmt and Clippy automatically in this directory; CI uses the same file. Package-manager installations without rustup use the packaged toolchain.
+Cargo installs `ascii-filter` in `$HOME/.cargo/bin` (`%USERPROFILE%\.cargo\bin` on Windows). Add that directory to your PATH if it is not already there.
 
-Edit `src/main.rs` in any text editor, then run these commands from the project directory:
+When using rustup, [rust-toolchain.toml](rust-toolchain.toml) selects the stable toolchain and installs rustfmt and Clippy automatically in this directory. CI uses the same file. Installations without rustup use the packaged toolchain.
+
+> [!NOTE]
+> Explain what your users need to install, including the tools your project is built on. Replace the repository URL and command name with your own.
+
+## Usage
+
+On Linux and macOS, filter a file or a pipeline:
+
+```sh
+ascii-filter < input.txt > output.txt
+printf 'caf\303\251\n' | ascii-filter
+```
+
+From PowerShell, use `cmd` redirection to preserve the file's bytes:
+
+```powershell
+cmd /c "ascii-filter < input.txt > output.txt"
+```
+
+Do not use the same file for input and output; the shell truncates the output file before the filter starts reading.
+
+Bytes from 0 through 127 pass through unchanged, including tabs, newlines and control characters. Bytes from 128 through 255 are removed. Input does not need to be valid UTF-8. This is filtering, not transliteration: the UTF-8 input shown above becomes `caf`, not `cafe`.
+
+The command reads one byte at a time without loading the file into memory. Read and write failures produce an error on standard error and a nonzero exit status.
+
+> [!NOTE]
+> Explain how to use your project, including the limits that matter to users.
+
+## Development
+
+Thank you for taking an interest in improving ASCII Filter and the pipelines of people using it!
+
+Follow the installation instructions above to get Rust and the native build tools. Work from the project directory. The implementation is in [src/main.rs](src/main.rs); you can run it without installing it:
+
+```sh
+cargo run --locked < input.txt > output.txt
+```
+
+In PowerShell, use `cmd /c "cargo run --locked < input.txt > output.txt"`. Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
+
+### Testing
+
+All project updates that we release must conform to our test suite. GitHub Actions runs the checks on pushes to `main` and pull requests. You can also run them locally before sending proposed changes:
 
 ```sh
 cargo test --locked
@@ -108,38 +155,52 @@ cargo clippy --all-targets --locked -- -D warnings
 cargo build --release --locked
 ```
 
-Use `cargo fmt --all` to apply formatting. `tests/cli.rs` checks the program's exit status, standard output, and standard error. Cargo puts build outputs in the ignored `target/` directory.
+Use `cargo fmt --all` to apply Rust formatting. The tests in [tests/cli.rs](tests/cli.rs) check empty input, all 256 possible byte values and a multi-megabyte stream. They check the exit status, standard output and standard error of the actual program.
 
-Run the optimized binary with `./target/release/rust-template` on Linux/macOS or `.\target\release\rust-template.exe` in PowerShell. Commit `Cargo.lock` to keep application builds reproducible.
+With an actively maintained version of Node.js installed, correct other formatting issues before sending proposed changes:
 
-## Make it your own
+```sh
+npx prettier@latest --check . --write
+npx markdownlint-cli@latest "**/*.md" --fix
+```
 
-> [!IMPORTANT]
-> Rename the package in `Cargo.toml`, the binary name in `tests/cli.rs`, and the binary path in `.github/workflows/build-test.yml`; run `cargo generate-lockfile` afterward.
->
-> Replace the greeting and its test with your application's behavior. Update this README and its badge URLs.
->
-> Choose your Rust toolchain in `rust-toolchain.toml`; use a numbered channel if your project needs a pinned compiler version.
+Cargo puts build outputs in the ignored `target/` directory. Run the optimized binary with `./target/release/ascii-filter` on Linux/macOS or `.\target\release\ascii-filter.exe` in PowerShell.
 
-## Contributing and releases
+### Releases
 
-[Build and test](.github/workflows/build-test.yml) builds and tests a release-mode Linux binary, then attests and uploads it as the `build` artifact. [Lint](.github/workflows/lint.yml) checks Rust formatting, Clippy, Markdown, and other file formatting.
+Use `fix:`, `feat:` or `BREAKING CHANGE:` in your commit messages. This triggers our bot to make a release draft pull request. Merging that pull request triggers a new tag and GitHub Release.
 
-The inherited [release workflow](.github/workflows/release.yml) uses Conventional Commits (`fix:`, `feat:`, or `BREAKING CHANGE:`) to draft release pull requests. Merging a release pull request publishes the Linux binary and attestation sidecar. Release Please uses the `simple` release type; update the package version in `Cargo.toml` and regenerate `Cargo.lock` when preparing a release.
+The [release workflow](.github/workflows/release.yml) uses Release Please's `simple` release type. Set the version in [Cargo.toml](Cargo.toml) and [Cargo.lock](Cargo.lock) to the proposed release version before merging the release pull request.
 
-> [!IMPORTANT]
-> In your GitHub repository settings, enable **Allow GitHub Actions to create and approve pull requests** under **Actions → General → Workflow permissions**, and enable release immutability under **General → Releases**.
+[Build and test](.github/workflows/build-test.yml) builds and tests a release-mode Linux binary, then attests and uploads it. The release includes `ascii-filter` and `release.sigstore.jsonl`, containing build provenance and version attestations. The published binary is for Linux; build from source on macOS or Windows.
 
-## Maintenance and dependency updates
+> [!NOTE]
+> In your GitHub repository settings, under Actions, General, Workflow permissions, select read and write permissions and check "Allow GitHub Actions to create and approve pull requests". Under General, Releases, enable release immutability. Attestations are available for public repositories; private repositories require GitHub Enterprise Cloud.
 
-Every quarter we should review external Actions in `.github/workflows` for safe updates. Please send a PR if you see updates available.
+### Maintenance
+
+The project administrator completes these maintenance tasks each month. If they are 3+ months late, please remind them or send your own issue/pull request.
+
+1. Identify external Actions in [.github/workflows](.github/workflows) and look for available new versions. Review and update them if it is safe. GitHub-supported Actions (under the actions/ organization) may require only cursory review.
+1. Check new Rust releases and whether our minimum supported version or [toolchain](rust-toolchain.toml) should change. Keep the installation instructions and [Cargo.toml](Cargo.toml) consistent with that decision.
+
+## Project scope
+
+We are people who work with text files and command-line pipelines. Sometimes we need to keep only ASCII bytes, including in files too large to fit in memory.
+
+ASCII Filter does that one job with standard input, standard output and bounded memory use. It accepts arbitrary bytes and preserves the order of every byte it keeps.
+
+We specifically will not add transliteration, encoding detection, a graphical interface or options for choosing other character sets.
+
+> [!NOTE]
+> Introduce your community, explain what is in scope and say what is out of scope. Help people recognize when their own work belongs here.
 
 ## References
 
-> [!IMPORTANT]
-> We use an MIT license for this template. Carefully consider which license to apply to your own project, and replace the copyright line in LICENSE.
->
-> If your project materially relied on external sources to make decisions, cite them here. We cite a text formatting policy and the project-template starting point below; adapt these references for your project.
+1. We use title case only for proper nouns, including the name of our project.
+1. This project is built based on [best practices documented in rust-template](https://github.com/fulldecent/rust-template/), release 1.0.0.
+1. The Rust ignore rules in [.gitignore](.gitignore) come from [GitHub's Rust gitignore](https://github.com/github/gitignore/blob/main/Rust.gitignore).
+1. This project is released under the [MIT license](LICENSE.md).
 
-1. Based on [project-template](https://github.com/fulldecent/project-template), including its build attestation and release workflows.
-1. We use title case for titles and proper nouns, not for other headings.
+> [!NOTE]
+> Carefully consider which license to apply to your project and replace the copyright line in [LICENSE.md](LICENSE.md). Cite external sources that materially informed your decisions, including the release of this Rust template you used.
