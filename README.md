@@ -6,7 +6,7 @@
 > - Clear structure and quick examples
 > - Cargo builds, tests, rustfmt and Clippy in continuous integration
 > - Automated releases with [Release Please](.github/workflows/release.yml) and SLSA provenance attestation
-> - A shared [Rust toolchain](rust-toolchain.toml) for local development and CI
+> - A shared, versioned [Rust toolchain](rust-toolchain.toml) for local development and CI
 >
 > What is in-scope for this template?
 >
@@ -34,7 +34,19 @@ caf
 
 ## Installation
 
-You will need Rust 1.63 or newer, Cargo, Git and your platform's native build tools. Open a terminal (PowerShell on Windows) and use the instructions for your operating system.
+You will need rustup, Git and your platform's native build tools.
+
+> [!WARNING]
+> rustup is the Rust toolchain manager, which installs rustc and friends at versions we specify in [rust-toolchain.toml](rust-toolchain.toml). We recommend to install rustup using your package manager as this is safer than the advice on the rustup website ([ref](#references)).
+
+If you do not use rustup and instead modify the commands below to use rustc directly, this may use your package manager's (possibly ancient) version. That build may fail and will be unsupported by this project.
+
+```sh
+"$(rustup which rustc)" --version
+"$(rustup which cargo)" --version
+```
+
+Open a terminal (PowerShell on Windows) and use the instructions for your operating system.
 
 ### Linux
 
@@ -42,14 +54,16 @@ On Ubuntu 22.04+ or Debian 12+:
 
 ```sh
 sudo apt update
-sudo apt install git build-essential rustc cargo rustfmt rust-clippy
+sudo apt install git build-essential rustup
 ```
 
 On Fedora:
 
 ```sh
-sudo dnf install git gcc rust cargo rustfmt clippy
+sudo dnf install git gcc rustup
 ```
+
+If your distribution has no `rustup` package, [other rustup installation methods](https://rust-lang.github.io/rustup/installation/other.html) are available, but beware as that page does also recommend some dangerous methods ([ref](#references)).
 
 ### macOS
 
@@ -59,13 +73,13 @@ Install Apple's Command Line Tools if they are not already installed:
 xcode-select --install
 ```
 
-Complete the installation dialog; these tools supply the linker and SDK. With Homebrew installed, install Git and Rust:
+Complete the installation dialog; these tools supply the linker and SDK. With Homebrew installed, install Git and rustup:
 
 ```sh
-brew install git rust
+brew install git rustup
 ```
 
-Homebrew's Rust package includes Cargo, rustfmt and Clippy.
+Homebrew's `rust` formula is a standalone compiler. It does not honor `rust-toolchain.toml`. Use `rustup` instead.
 
 ### Windows
 
@@ -77,33 +91,29 @@ winget install --exact --id Microsoft.VisualStudio.2022.BuildTools --override "-
 winget install --exact --id Rustlang.Rustup
 ```
 
-Allow administrator prompts and wait for installation to finish. The C++ workload supplies the MSVC linker and Windows SDK. Open a new PowerShell window so the updated PATH takes effect, then run:
-
-> [!CAUTION]
-> The instructions above only install `rustc` but we need `rustup`!
->
-> These instructions are incomplete to make use of rust-toolchain.toml.
-
-```powershell
-rustup default stable
-rustup component add rustfmt clippy
-```
+Allow administrator prompts and wait for installation to finish. The C++ workload supplies the MSVC linker and Windows SDK. Open a new PowerShell window so rustup is on `PATH`.
 
 ### Build and install
 
-Clone the project and install the command:
+Clone the project and install the command. From this directory, rustup installs the toolchain in [rust-toolchain.toml](rust-toolchain.toml) on first use. CI uses the same file.
 
 ```sh
 git clone https://github.com/fulldecent/rust-template.git
 cd rust-template
-rustc --version
-cargo --version
-cargo install --path . --locked
+"$(rustup which rustc)" --version
+"$(rustup which cargo)" --version
+"$(rustup which cargo)" install --path . --locked
+```
+
+In PowerShell:
+
+```powershell
+& (rustup which rustc) --version
+& (rustup which cargo) --version
+& (rustup which cargo) install --path . --locked
 ```
 
 Cargo installs `ascii-filter` in `$HOME/.cargo/bin` (`%USERPROFILE%\.cargo\bin` on Windows). Add that directory to your PATH if it is not already there.
-
-When using rustup, [rust-toolchain.toml](rust-toolchain.toml) selects the stable toolchain and installs rustfmt and Clippy automatically in this directory. CI uses the same file. Installations without rustup use the packaged toolchain.
 
 > [!NOTE]
 > Explain what your users need to install, including the tools your project is built on. Replace the repository URL and command name with your own.
@@ -136,26 +146,26 @@ The command reads one byte at a time without loading the file into memory. Read 
 
 Thank you for taking an interest in improving ASCII Filter and the pipelines of people using it!
 
-Follow the installation instructions above to get Rust and the native build tools. Work from the project directory. The implementation is in [src/main.rs](src/main.rs); you can run it without installing it:
+Follow the installation instructions above to get rustup and the native build tools. Work from the project directory. The implementation is in [src/main.rs](src/main.rs); you can run it without installing it:
 
 ```sh
-cargo run --locked < input.txt > output.txt
+"$(rustup which cargo)" run --locked < input.txt > output.txt
 ```
 
-In PowerShell, use `cmd /c "cargo run --locked < input.txt > output.txt"`. Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
+In PowerShell, use `cmd /c "& (rustup which cargo) run --locked < input.txt > output.txt"`. Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
 
 ### Testing
 
-All project updates that we release must conform to our test suite. GitHub Actions runs the checks on pushes to `main` and pull requests. You can also run them locally before sending proposed changes:
+All project updates that we release must conform to our test suite. GitHub Actions runs [checks](./.github/workflows) on pushes to `main` and pull requests. You can also run them locally before sending proposed changes:
 
 ```sh
-cargo test --locked
-cargo fmt --all -- --check
-cargo clippy --all-targets --locked -- -D warnings
-cargo build --release --locked
+"$(rustup which cargo)" test --locked
+"$(rustup which cargo)" fmt --all -- --check
+"$(rustup which cargo)" clippy --all-targets --locked -- -D warnings
+"$(rustup which cargo)" build --release --locked
 ```
 
-Use `cargo fmt --all` to apply Rust formatting. The tests in [tests/cli.rs](tests/cli.rs) check empty input, all 256 possible byte values and a multi-megabyte stream. They check the exit status, standard output and standard error of the actual program.
+Use `"$(rustup which cargo)" fmt --all` to apply Rust formatting. The tests in [tests/cli.rs](tests/cli.rs) check empty input, all 256 possible byte values and a multi-megabyte stream. They check the exit status, standard output and standard error of the actual program.
 
 With an actively maintained version of Node.js installed, correct other formatting issues before sending proposed changes:
 
@@ -198,6 +208,7 @@ We specifically will not add transliteration, encoding detection, a graphical in
 ## References
 
 1. We use title case only for proper nouns, including the name of our project.
+1. We recommend to use your package manager to install rustup because the rust website prefers the unsafe `curl|sh` method ([issue](https://github.com/rust-lang/rust/issues/163468)).
 1. This project is built based on [best practices documented in rust-template](https://github.com/fulldecent/rust-template/), release 1.0.0.
 1. The Rust ignore rules in [.gitignore](.gitignore) come from [GitHub's Rust gitignore](https://github.com/github/gitignore/blob/main/Rust.gitignore).
 1. This project is released under the [MIT license](LICENSE.md).
