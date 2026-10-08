@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/fulldecent/rust-template/compare/v1.0.0...v1.1.0) (2026-10-08)
+
+
+### Features
+
+* cutover to rustup tooling ([6e90639](https://github.com/fulldecent/rust-template/commit/6e906396c4bb7e68159a9186ee5cb11c5c496558))
+
 ## 1.0.0 (2026-10-07)
 
 ### Features
