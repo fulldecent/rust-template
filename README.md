@@ -18,7 +18,7 @@
 >
 > And now below is the template, shown for a specific hypothetical project, enjoy!
 
-[![Build and test](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml/badge.svg?branch=main)](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml) [![Lint](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml)
+[![Build and test](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml/badge.svg)](https://github.com/fulldecent/rust-template/actions/workflows/build-test.yml) [![Lint](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml/badge.svg)](https://github.com/fulldecent/rust-template/actions/workflows/lint.yml)
 
 Keep the ASCII characters. Drop everything else.
 
