@@ -228,6 +228,7 @@ We specifically will not add transliteration, encoding detection, a graphical in
 1. We use title case only for proper nouns, including the name of our project.
 1. We recommend to use your package manager to install rustup because the rust website prefers the unsafe `curl|sh` method ([issue](https://github.com/rust-lang/rust/issues/163468)).
 1. This project is built based on [best practices documented in rust-template](https://github.com/fulldecent/rust-template/), release 1.1.0.
+1. This project is built based on [best practices documented in project-template](https://github.com/fulldecent/project-template), release v1.3.0.
 1. The Rust ignore rules in [.gitignore](.gitignore) come from [GitHub's Rust gitignore](https://github.com/github/gitignore/blob/main/Rust.gitignore).
 1. This project is released under the [MIT license](LICENSE.md).
 
