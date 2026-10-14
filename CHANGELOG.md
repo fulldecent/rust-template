@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/fulldecent/rust-template/compare/v1.1.0...v1.1.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* drop branch query from status badges ([96b1162](https://github.com/fulldecent/rust-template/commit/96b11626b70edb0778bf29b49adfb83ef38dc466))
+
 ## [1.1.0](https://github.com/fulldecent/rust-template/compare/v1.0.0...v1.1.0) (2026-10-08)
 
 
