@@ -34,19 +34,63 @@ caf
 
 ## Installation
 
-You will need rustup, Git and your platform's native build tools.
-
-> [!WARNING]
-> rustup is the Rust toolchain manager, which installs rustc and friends at versions we specify in [rust-toolchain.toml](rust-toolchain.toml). We recommend to install rustup using your package manager as this is safer than the advice on the rustup website ([ref](#references)).
-
-If you do not use rustup and instead modify the commands below to use rustc directly, this may use your package manager's (possibly ancient) version. That build may fail and will be unsupported by this project.
+Select the latest release and install the command:
 
 ```sh
-"$(rustup which rustc)" --version
-"$(rustup which cargo)" --version
+name="ascii-filter"
+base="https://github.com/fulldecent/rust-template/releases/latest/download"
+curl -fL -o "$name" "$base/$name"
+curl -fL -o "${name}.sigstore.jsonl" "$base/${name}.sigstore.jsonl"
+chmod +x "$name"
 ```
 
-Open a terminal (PowerShell on Windows) and use the instructions for your operating system.
+If you have the `gh` command, verify the file build attestation:
+
+```sh
+gh attestation verify "$name" \
+  -R fulldecent/rust-template \
+  --bundle "${name}.sigstore.jsonl"
+```
+
+The published binary is for Linux. Put `ascii-filter` on your `PATH`.
+
+> [!NOTE]
+> Explain what your users need to install. Replace the repository URL and command name with your own. Building from source stays in Development.
+
+## Usage
+
+On Linux and macOS, filter a file or a pipeline:
+
+```sh
+ascii-filter < input.txt > output.txt
+printf 'caf\303\251\n' | ascii-filter
+```
+
+From PowerShell, use `cmd` redirection to preserve the file's bytes:
+
+```powershell
+cmd /c "ascii-filter < input.txt > output.txt"
+```
+
+Do not use the same file for input and output; the shell truncates the output file before the filter starts reading.
+
+Bytes from 0 through 127 pass through unchanged, including tabs, newlines and control characters. Bytes from 128 through 255 are removed. Input does not need to be valid UTF-8. This is filtering, not transliteration: the UTF-8 input shown above becomes `caf`, not `cafe`.
+
+The command reads one byte at a time without loading the file into memory. Read and write failures produce an error on standard error and a nonzero exit status.
+
+> [!NOTE]
+> Explain how to use your project, including the limits that matter to users.
+
+## Development
+
+Thank you for taking an interest in improving ASCII Filter and the pipelines of people using it!
+
+You will need rustup, Git and your platform's native build tools. rustup installs the toolchain in [rust-toolchain.toml](rust-toolchain.toml), including targets that file lists. CI uses the same file.
+
+> [!WARNING]
+> rustup is the Rust toolchain manager. We recommend to install rustup using your package manager as this is safer than the advice on the rustup website ([ref](#references)).
+
+A packaged `rustc` earlier on `PATH` does not apply `rust-toolchain.toml`. The commands below put that file's toolchain first, so a cross compile uses its standard library ([ref](#references)).
 
 ### Linux
 
@@ -93,79 +137,63 @@ winget install --exact --id Rustlang.Rustup
 
 Allow administrator prompts and wait for installation to finish. The C++ workload supplies the MSVC linker and Windows SDK. Open a new PowerShell window so rustup is on `PATH`.
 
-### Build and install
+### Build
 
-Clone the project and install the command. From this directory, rustup installs the toolchain in [rust-toolchain.toml](rust-toolchain.toml) on first use. CI uses the same file.
+Clone the project and work from that directory. The implementation is in [src/main.rs](src/main.rs). On Linux and macOS:
 
 ```sh
 git clone https://github.com/fulldecent/rust-template.git
 cd rust-template
-"$(rustup which rustc)" --version
-"$(rustup which cargo)" --version
-"$(rustup which cargo)" install --path . --locked
+PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo run --locked < input.txt > output.txt
 ```
 
-In PowerShell:
+`PATH` selects the toolchain `rustc`, so the standard library matches [rust-toolchain.toml](rust-toolchain.toml). `DYLD_LIBRARY_PATH` lets macOS load `libLLVM.dylib` for `rust-lld`. Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
+
+In PowerShell, Windows finds the toolchain DLL on `PATH`:
 
 ```powershell
-& (rustup which rustc) --version
-& (rustup which cargo) --version
-& (rustup which cargo) install --path . --locked
+$bin = Split-Path (rustup which cargo)
+$env:PATH = "$bin;$env:PATH"
+cmd /c "cargo run --locked < input.txt > output.txt"
+```
+
+Install the command you just built:
+
+```sh
+PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo install --path . --locked
+```
+
+```powershell
+$bin = Split-Path (rustup which cargo)
+$env:PATH = "$bin;$env:PATH"
+cargo install --path . --locked
 ```
 
 Cargo installs `ascii-filter` in `$HOME/.cargo/bin` (`%USERPROFILE%\.cargo\bin` on Windows). Add that directory to your PATH if it is not already there.
-
-> [!NOTE]
-> Explain what your users need to install, including the tools your project is built on. Replace the repository URL and command name with your own.
-
-## Usage
-
-On Linux and macOS, filter a file or a pipeline:
-
-```sh
-ascii-filter < input.txt > output.txt
-printf 'caf\303\251\n' | ascii-filter
-```
-
-From PowerShell, use `cmd` redirection to preserve the file's bytes:
-
-```powershell
-cmd /c "ascii-filter < input.txt > output.txt"
-```
-
-Do not use the same file for input and output; the shell truncates the output file before the filter starts reading.
-
-Bytes from 0 through 127 pass through unchanged, including tabs, newlines and control characters. Bytes from 128 through 255 are removed. Input does not need to be valid UTF-8. This is filtering, not transliteration: the UTF-8 input shown above becomes `caf`, not `cafe`.
-
-The command reads one byte at a time without loading the file into memory. Read and write failures produce an error on standard error and a nonzero exit status.
-
-> [!NOTE]
-> Explain how to use your project, including the limits that matter to users.
-
-## Development
-
-Thank you for taking an interest in improving ASCII Filter and the pipelines of people using it!
-
-Follow the installation instructions above to get rustup and the native build tools. Work from the project directory. The implementation is in [src/main.rs](src/main.rs); you can run it without installing it:
-
-```sh
-"$(rustup which cargo)" run --locked < input.txt > output.txt
-```
-
-In PowerShell, use `cmd /c "& (rustup which cargo) run --locked < input.txt > output.txt"`. Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
 
 ### Testing
 
 All project updates that we release must conform to our test suite. GitHub Actions runs [checks](./.github/workflows) on pushes to `main` and pull requests. You can also run them locally before sending proposed changes:
 
 ```sh
-"$(rustup which cargo)" test --locked
-"$(rustup which cargo)" fmt --all -- --check
-"$(rustup which cargo)" clippy --all-targets --locked -- -D warnings
-"$(rustup which cargo)" build --release --locked
+PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo test --locked
+PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo fmt --all -- --check
+PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo clippy --all-targets --locked -- -D warnings
+PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo build --release --locked
 ```
 
-Use `"$(rustup which cargo)" fmt --all` to apply Rust formatting. The tests in [tests/cli.rs](tests/cli.rs) check empty input, all 256 possible byte values and a multi-megabyte stream. They check the exit status, standard output and standard error of the actual program.
+Use the same prefix with `cargo fmt --all` to apply Rust formatting. The tests in [tests/cli.rs](tests/cli.rs) check empty input, all 256 possible byte values and a multi-megabyte stream. They check the exit status, standard output and standard error of the actual program.
+
+In PowerShell:
+
+```powershell
+$bin = Split-Path (rustup which cargo)
+$env:PATH = "$bin;$env:PATH"
+cargo test --locked
+cargo fmt --all -- --check
+cargo clippy --all-targets --locked -- -D warnings
+cargo build --release --locked
+```
 
 With an actively maintained version of Node.js installed, correct other formatting issues before sending proposed changes:
 
@@ -226,6 +254,7 @@ We specifically will not add transliteration, encoding detection, a graphical in
 ## References
 
 1. We use title case only for proper nouns, including the name of our project.
+1. We use a workaround so that rustup works without replacing your system Rust programs ([issue](https://github.com/rust-lang/rustup/issues/5025#issuecomment-6869331794)).
 1. We recommend to use your package manager to install rustup because the rust website prefers the unsafe `curl|sh` method ([issue](https://github.com/rust-lang/rust/issues/163468)).
 1. This project is built based on [best practices documented in rust-template](https://github.com/fulldecent/rust-template/), release 1.1.0.
 1. This project is built based on [best practices documented in project-template](https://github.com/fulldecent/project-template), release v1.4.1.
