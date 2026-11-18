@@ -85,12 +85,10 @@ The command reads one byte at a time without loading the file into memory. Read 
 
 Thank you for taking an interest in improving ASCII Filter and the pipelines of people using it!
 
-You will need rustup, Git and your platform's native build tools. rustup installs the toolchain in [rust-toolchain.toml](rust-toolchain.toml), including targets that file lists. CI uses the same file.
+You will need rustup, Git and your platform's native build tools. rustup installs the toolchain in [rust-toolchain.toml](rust-toolchain.toml). CI uses the same file.
 
 > [!WARNING]
 > rustup is the Rust toolchain manager. We recommend to install rustup using your package manager as this is safer than the advice on the rustup website ([ref](#references)).
-
-A packaged `rustc` earlier on `PATH` does not apply `rust-toolchain.toml`. The commands below put that file's toolchain first, so a cross compile uses its standard library ([ref](#references)).
 
 ### Linux
 
@@ -147,9 +145,9 @@ cd rust-template
 PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo run --locked < input.txt > output.txt
 ```
 
-`PATH` selects the toolchain `rustc`, so the standard library matches [rust-toolchain.toml](rust-toolchain.toml). `DYLD_LIBRARY_PATH` lets macOS load `libLLVM.dylib` for `rust-lld`. Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
+Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
 
-In PowerShell, Windows finds the toolchain DLL on `PATH`:
+In PowerShell:
 
 ```powershell
 $bin = Split-Path (rustup which cargo)
@@ -182,7 +180,7 @@ PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirna
 PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo build --release --locked
 ```
 
-Use the same prefix with `cargo fmt --all` to apply Rust formatting. The tests in [tests/cli.rs](tests/cli.rs) check empty input, all 256 possible byte values and a multi-megabyte stream. They check the exit status, standard output and standard error of the actual program.
+Use `cargo fmt --all` to apply Rust formatting. The tests in [tests/cli.rs](tests/cli.rs) check empty input, all 256 possible byte values and a multi-megabyte stream. They check the exit status, standard output and standard error of the actual program.
 
 In PowerShell:
 
