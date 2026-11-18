@@ -139,9 +139,13 @@ Allow administrator prompts and wait for installation to finish. The C++ workloa
 
 Clone the project and work from that directory. The implementation is in [src/main.rs](src/main.rs). On Linux and macOS:
 
+> [!NOTE]
+> If you do not require cross compilation, omit the `DYLD_LIBRARY_PATH="$(cd "$(dirname...` part of all commands in this README.
+
 ```sh
 git clone https://github.com/fulldecent/rust-template.git
 cd rust-template
+PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo build --locked
 PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo run --locked < input.txt > output.txt
 ```
 
@@ -152,22 +156,9 @@ In PowerShell:
 ```powershell
 $bin = Split-Path (rustup which cargo)
 $env:PATH = "$bin;$env:PATH"
+cargo build --locked
 cmd /c "cargo run --locked < input.txt > output.txt"
 ```
-
-Install the command you just built:
-
-```sh
-PATH="$(dirname "$(rustup which cargo)"):$PATH" DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" cargo install --path . --locked
-```
-
-```powershell
-$bin = Split-Path (rustup which cargo)
-$env:PATH = "$bin;$env:PATH"
-cargo install --path . --locked
-```
-
-Cargo installs `ascii-filter` in `$HOME/.cargo/bin` (`%USERPROFILE%\.cargo\bin` on Windows). Add that directory to your PATH if it is not already there.
 
 ### Testing
 
