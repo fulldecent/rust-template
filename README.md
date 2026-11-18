@@ -40,7 +40,7 @@ Select the latest release and install the command:
 name="ascii-filter"
 base="https://github.com/fulldecent/rust-template/releases/latest/download"
 curl -fL -o "$name" "$base/$name"
-curl -fL -o "${name}.sigstore.jsonl" "$base/${name}.sigstore.jsonl"
+curl -fL -o release.sigstore.jsonl "$base/release.sigstore.jsonl"
 chmod +x "$name"
 ```
 
@@ -49,7 +49,7 @@ If you have the `gh` command, verify the file build attestation:
 ```sh
 gh attestation verify "$name" \
   -R fulldecent/rust-template \
-  --bundle "${name}.sigstore.jsonl"
+  --bundle release.sigstore.jsonl
 ```
 
 The published binary is for Linux. Put `ascii-filter` on your `PATH`.
