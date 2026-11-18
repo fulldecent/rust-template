@@ -34,89 +34,28 @@ caf
 
 ## Installation
 
-You will need rustup, Git and your platform's native build tools.
-
-> [!WARNING]
-> rustup is the Rust toolchain manager, which installs rustc and friends at versions we specify in [rust-toolchain.toml](rust-toolchain.toml). We recommend to install rustup using your package manager as this is safer than the advice on the rustup website ([ref](#references)).
-
-If you do not use rustup and instead modify the commands below to use rustc directly, this may use your package manager's (possibly ancient) version. That build may fail and will be unsupported by this project.
+Select the latest release and install the command:
 
 ```sh
-"$(rustup which rustc)" --version
-"$(rustup which cargo)" --version
+name="ascii-filter"
+base="https://github.com/fulldecent/rust-template/releases/latest/download"
+curl -fL -o "$name" "$base/$name"
+curl -fL -o release.sigstore.jsonl "$base/release.sigstore.jsonl"
+chmod +x "$name"
 ```
 
-Open a terminal (PowerShell on Windows) and use the instructions for your operating system.
-
-### Linux
-
-On Ubuntu 22.04+ or Debian 12+:
+If you have the `gh` command, verify the file build attestation:
 
 ```sh
-sudo apt update
-sudo apt install git build-essential rustup
+gh attestation verify "$name" \
+  -R fulldecent/rust-template \
+  --bundle release.sigstore.jsonl
 ```
 
-On Fedora:
-
-```sh
-sudo dnf install git gcc rustup
-```
-
-If your distribution has no `rustup` package, [other rustup installation methods](https://rust-lang.github.io/rustup/installation/other.html) are available, but beware as that page does also recommend some dangerous methods ([ref](#references)).
-
-### macOS
-
-Install Apple's Command Line Tools if they are not already installed:
-
-```sh
-xcode-select --install
-```
-
-Complete the installation dialog; these tools supply the linker and SDK. With Homebrew installed, install Git and rustup:
-
-```sh
-brew install git rustup
-```
-
-Homebrew's `rust` formula is a standalone compiler. It does not honor `rust-toolchain.toml`. Use `rustup` instead.
-
-### Windows
-
-Use winget to install Git, the native build tools and rustup:
-
-```powershell
-winget install --exact --id Git.Git
-winget install --exact --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
-winget install --exact --id Rustlang.Rustup
-```
-
-Allow administrator prompts and wait for installation to finish. The C++ workload supplies the MSVC linker and Windows SDK. Open a new PowerShell window so rustup is on `PATH`.
-
-### Build and install
-
-Clone the project and install the command. From this directory, rustup installs the toolchain in [rust-toolchain.toml](rust-toolchain.toml) on first use. CI uses the same file.
-
-```sh
-git clone https://github.com/fulldecent/rust-template.git
-cd rust-template
-"$(rustup which rustc)" --version
-"$(rustup which cargo)" --version
-"$(rustup which cargo)" install --path . --locked
-```
-
-In PowerShell:
-
-```powershell
-& (rustup which rustc) --version
-& (rustup which cargo) --version
-& (rustup which cargo) install --path . --locked
-```
-
-Cargo installs `ascii-filter` in `$HOME/.cargo/bin` (`%USERPROFILE%\.cargo\bin` on Windows). Add that directory to your PATH if it is not already there.
+The published binary is for Linux. Put `ascii-filter` on your `PATH`.
 
 > [!NOTE]
-> Explain what your users need to install, including the tools your project is built on. Replace the repository URL and command name with your own.
+> Explain what your users need to install. Replace the repository URL and command name with your own. Building from source stays in Development.
 
 ## Usage
 
@@ -146,26 +85,99 @@ The command reads one byte at a time without loading the file into memory. Read 
 
 Thank you for taking an interest in improving ASCII Filter and the pipelines of people using it!
 
-Follow the installation instructions above to get rustup and the native build tools. Work from the project directory. The implementation is in [src/main.rs](src/main.rs); you can run it without installing it:
+You will need Git, your platform's native build tools and the Rust tooling described in [rust-toolchain.toml](rust-toolchain.toml). We recommend rustup to manage your rust tooling, but install it using your system package manager rather than the dangerous methods on the rustup website ([ref](#references)).
+
+### Linux
+
+On Ubuntu 22.04+ or Debian 12+:
 
 ```sh
-"$(rustup which cargo)" run --locked < input.txt > output.txt
+sudo apt update
+sudo apt install git build-essential rustup
 ```
 
-In PowerShell, use `cmd /c "& (rustup which cargo) run --locked < input.txt > output.txt"`. Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
+On Fedora:
+
+```sh
+sudo dnf install git gcc rustup
+```
+
+### macOS
+
+Install Apple's Command Line Tools (linker and SDK) if they are not already installed:
+
+```sh
+xcode-select --install
+```
+
+With Homebrew installed, install Git and rustup:
+
+```sh
+brew install git rustup
+```
+
+### Windows
+
+Use winget to install Git, the native build tools (linker and SDK) and rustup:
+
+```powershell
+winget install --exact --id Git.Git
+winget install --exact --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+winget install --exact --id Rustlang.Rustup
+```
+
+Then open a new PowerShell window so rustup is on `PATH`.
+
+### Build
+
+Clone the project and work from that directory. The implementation is in [src/main.rs](src/main.rs). On Linux and macOS:
+
+> [!NOTE]
+> If you do not require cross compilation, remove the `DYLD_LIBRARY_PATH="..."` part of all commands in this README.
+
+```sh
+git clone https://github.com/fulldecent/rust-template.git
+cd rust-template
+export PATH="$(dirname "$(rustup which cargo)"):$PATH"
+export DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" # macOS only; omit on Linux
+cargo build --locked
+cargo run --locked < input.txt > output.txt
+```
+
+Keep the command small and its memory use independent of input size. Commit [Cargo.lock](Cargo.lock) so application dependencies remain reproducible.
+
+In PowerShell:
+
+```powershell
+$bin = Split-Path (rustup which cargo)
+$env:PATH = "$bin;$env:PATH"
+cargo build --locked
+cmd /c "cargo run --locked < input.txt > output.txt"
+```
 
 ### Testing
 
-All project updates that we release must conform to our test suite. GitHub Actions runs [checks](./.github/workflows) on pushes to `main` and pull requests. You can also run them locally before sending proposed changes:
+All project updates must conform to our test suite, including [checks](./.github/workflows) run by GitHub Actions. You can also run them locally before sending proposed changes:
 
 ```sh
-"$(rustup which cargo)" test --locked
-"$(rustup which cargo)" fmt --all -- --check
-"$(rustup which cargo)" clippy --all-targets --locked -- -D warnings
-"$(rustup which cargo)" build --release --locked
+export PATH="$(dirname "$(rustup which cargo)"):$PATH"
+export DYLD_LIBRARY_PATH="$(cd "$(dirname "$(rustup which cargo)")/../lib" && pwd)" # macOS only
+cargo test --locked
+cargo fmt --all
+cargo clippy --all-targets --locked -- -D warnings
+cargo build --release --locked
 ```
 
-Use `"$(rustup which cargo)" fmt --all` to apply Rust formatting. The tests in [tests/cli.rs](tests/cli.rs) check empty input, all 256 possible byte values and a multi-megabyte stream. They check the exit status, standard output and standard error of the actual program.
+In PowerShell:
+
+```powershell
+$bin = Split-Path (rustup which cargo)
+$env:PATH = "$bin;$env:PATH"
+cargo test --locked
+cargo fmt --all -- --check
+cargo clippy --all-targets --locked -- -D warnings
+cargo build --release --locked
+```
 
 With an actively maintained version of Node.js installed, correct other formatting issues before sending proposed changes:
 
@@ -180,30 +192,10 @@ Cargo puts build outputs in the ignored `target/` directory. Run the optimized b
 
 Use `fix:`, `feat:` or `BREAKING CHANGE:` in your commit messages. This triggers our bot to make a release draft pull request. Merging that pull request triggers a new tag and GitHub Release.
 
-The [release workflow](.github/workflows/release.yml) uses Release Please's `simple` release type. Set the version in [Cargo.toml](Cargo.toml) and [Cargo.lock](Cargo.lock) to the proposed release version before merging the release pull request.
-
-[Build and test](.github/workflows/build-test.yml) builds and tests a release-mode Linux binary, then attests and uploads it. The release includes `ascii-filter` and `release.sigstore.jsonl`, containing build provenance and version attestations. The published binary is for Linux; build from source on macOS or Windows.
-
 > [!NOTE]
-> In your GitHub repository settings, under Actions, General, Workflow permissions, select read and write permissions and check "Allow GitHub Actions to create and approve pull requests". Under General, Releases, enable release immutability. Attestations are available for public repositories; private repositories require GitHub Enterprise Cloud.
+> In your GitHub repository settings, under Actions, General, Workflow permissions, check "Allow GitHub Actions to create and approve pull requests". Release Please needs this to open the release draft pull request.
 >
-> Run these commands from a clone of the new repository. `gh` fills in `{owner}/{repo}` from that clone.
->
-> List tags:
->
-> ```sh
-> gh api repos/{owner}/{repo}/tags --jq '.[].name'
-> ```
->
-> Set the starting tag on the current `main` commit. `v0.0.0` is the version Release Please counts forward from. Use another `vMAJOR.MINOR.PATCH` tag when this repository should start later.
->
-> ```sh
-> gh api --method POST repos/{owner}/{repo}/git/refs \
->   -f ref="refs/tags/v0.0.0" \
->   -f sha="$(gh api repos/{owner}/{repo}/commits/main --jq .sha)"
-> ```
->
-> `gh release list` and `gh release create` publish the releases this workflow creates after that tag.
+> If you are adopting this template from an existing project and your first Release Please PR is not getting the version number right, check the Release Please documentation—you may need to add a configuration option if you do not use a "v" prefix in your release tag names, and for other situations.
 
 ### Maintenance
 
@@ -226,6 +218,7 @@ We specifically will not add transliteration, encoding detection, a graphical in
 ## References
 
 1. We use title case only for proper nouns, including the name of our project.
+1. We use a workaround so that rustup works without replacing your system Rust programs ([issue](https://github.com/rust-lang/rustup/issues/5025#issuecomment-6869331794)).
 1. We recommend to use your package manager to install rustup because the rust website prefers the unsafe `curl|sh` method ([issue](https://github.com/rust-lang/rust/issues/163468)).
 1. This project is built based on [best practices documented in rust-template](https://github.com/fulldecent/rust-template/), release 1.1.0.
 1. This project is built based on [best practices documented in project-template](https://github.com/fulldecent/project-template), release v1.4.1.
