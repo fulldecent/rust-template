@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/fulldecent/rust-template/compare/v1.1.1...v1.2.0) (2026-11-18)
+
+
+### Features
+
+* allow cross compile ([#7](https://github.com/fulldecent/rust-template/issues/7)) ([ff403d1](https://github.com/fulldecent/rust-template/commit/ff403d111fe02032adcdbcb4119d234b7d1f8931))
+
 ## [1.1.1](https://github.com/fulldecent/rust-template/compare/v1.1.0...v1.1.1) (2026-10-09)
 
 
